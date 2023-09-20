@@ -42,6 +42,8 @@ exports.createUser = async (req, res) => {
     gpsPostion,
     roleName
   });
+
+
   const newUser = await user.save();
 
   const admin = await User.findOne({"roleName": "admin"});
@@ -54,11 +56,9 @@ exports.createUser = async (req, res) => {
         body: `Veuillez vérifier cet utilisateur ${newUser._id}`,
       },  
     }
-    sendNotif(admin, sender, "addedUser", message);
-
-
+    sendNotif(admin, user, "addedUser", message);
   } else {
-    console.log('check user infos')
+    console.log("there is no admin")
   }
 
   res.json({ success: true, user });
