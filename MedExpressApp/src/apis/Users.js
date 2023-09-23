@@ -86,19 +86,24 @@ export const AuthProvider = ({ children }) => {
         navigation.navigate('Home');
         setIsLoading(false);
       }else{
-        let errorMessage = ''
-        switch(data.message){
-          case "verifyEmailAndPwd":
-            errorMessage = "Vérifier votre email et mot de passe";
-            break;
-          case "notYetUserVerification":
-            errorMessage = "Cet utilisateur n'a pas encore verifier par l'admin!";
-            break;
-          case "refusedUser":
-            errorMessage = "Cet utilisateur est refusé par l'admin";
-            break;
+        if(data.message === "verifyEmailAndPwd"){
+          errorMessage = "Vérifier votre email et mot de passe";
+          () => ToastAndroid.showWithGravityAndOffset(
+            "Vérifier votre email et mot de passe",
+            ToastAndroid.LONG, // Duration: LONG or SHORT
+            ToastAndroid.BOTTOM, // Position: TOP, CENTER, or BOTTOM
+            25, // X-offset (in pixels)
+            50 // Y-offset (in pixels)
+          );
+          
+        } else if (data.message === "notYetUserVerification") {
+          errorMessage = "Cet utilisateur n'a pas encore verifier par l'admin!";
+          ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+        } else if(data.message === "refusedUser") {
+          errorMessage = "Cet utilisateur est refusé par l'admin";
+          ToastAndroid.show(errorMessage, ToastAndroid.LONG);
         }
-        ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+        
         setIsLoading(false);
       }
     } catch (error) { 

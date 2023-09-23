@@ -29,8 +29,8 @@ const RegisterScreen = ({navigation}) => {
   const [confirmpassword, setConfirmPassword] = useState(null);
   const [roles, setRoles] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
-  const [longitude, setLongitude] = useState("0");
-  const [lattitude, setLattitude] = useState("0");
+  const [longitude, setLongitude] = useState(48.856614);
+  const [lattitude, setLattitude] = useState(2.3522219);
   const {isLoading, register, error, getAllRoles, geocodeAddress} = useContext(AuthContext);
   const [selectedCoordinates, setSelectedCoordinates] = useState({
     latitude: 37.78825,
@@ -45,8 +45,10 @@ const RegisterScreen = ({navigation}) => {
   const updateAdress = async (text) => {
     setAdress(text);
     if(text){
+      console.log({text})
       const response = await geocodeAddress(text)
       if(response && response.latitude && response.longitude && !isNaN(response.latitude) && !isNaN(response.longitude)){
+        console.log({response})
         setLattitude(response.latitude)
         setLongitude(response.longitude)
       } else {
@@ -180,12 +182,12 @@ const RegisterScreen = ({navigation}) => {
           keyboardType='numeric'
         /> 
 
-        {/* <TextInput
+        <TextInput
           style={styles.input}
           value={address}
           placeholder="Entrer ton addresse"
           onChangeText={text => updateAdress(text)}
-        />  */}
+        /> 
 
 
          <View style={styles.mapContainer}>
@@ -202,8 +204,8 @@ const RegisterScreen = ({navigation}) => {
             <Marker
               draggable
               coordinate={{
-                latitude: 48.856614,
-                longitude: 2.3522219,
+                latitude: lattitude,
+                longitude: longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
               }}

@@ -28,7 +28,7 @@ exports.createUser = async (req, res) => {
       message: 'Please select a valid role',
     });
 
-  const status = 'pending';
+  const status = roleObj.name == "admin" ? "accepted" : "pending";
 
   const user = await User({
     username,
@@ -46,18 +46,20 @@ exports.createUser = async (req, res) => {
   const newUser = await user.save();
 
   const admin = await User.findOne({"roleName": "admin"});
-  if(admin) {
-    const token = admin.fcmToken; // Assuming you have a single token in the tokens array
-    const message = {
-      token: token,
-      notification: {
-        title: "Nouveau utilisateur",
-        body: `Veuillez vérifier cet utilisateur ${newUser._id}`,
-      },  
+  if(roleObj && roleObj.name != "admin"){
+    if(admin) {
+      const token = admin.fcmToken; // Assuming you have a single token in the tokens array
+      const message = {
+        token: token,
+        notification: {
+          title: "Nouveau utilisateur",
+          body: `Veuillez vérifier cet utilisateur ${newUser._id}`,
+        },  
+      }
+      sendNotif(admin, user, "addedUser", message);
+    } else {
+      console.log("there is no admin")
     }
-    sendNotif(admin, user, "addedUser", message);
-  } else {
-    console.log("there is no admin")
   }
 
   res.json({ success: true, user });
