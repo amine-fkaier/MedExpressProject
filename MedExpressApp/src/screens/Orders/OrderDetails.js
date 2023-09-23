@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PharmacyContext } from '../../apis/Pharmacies';
 import {Picker} from '@react-native-picker/picker';
 import { DeliveryPersonContext } from '../../apis/DeliveryPersons';
+import { localServer } from '../../config/config';
 
 const OrderDetailsScreen = ({ route, navigation }) => {
   const { item } = route.params;
@@ -41,9 +42,14 @@ const OrderDetailsScreen = ({ route, navigation }) => {
       setSelectedOrder(item)
       const fetchData = async () => {
         try {
-         if (userInfo && userInfo.user.role === "pharmacy" && selectedOrder.orderStatus === "accepted"){
+          console.log({selectedOrder})
+         if (userInfo && userInfo.user.role === "pharmacy" && selectedOrder.orderStatus === "accepted" && 
+            selectedOrder.payed){
             const response = await getNearestDeliveryPersons(userInfo.user.userId)
             setNearestDeliveryPersons(response.data || [])
+            if(response && response.data && response.data[0] && response.data[0]._id){
+              setSelectedDeliveryPersonId(response.data[0]._id)
+            }
           }
           if(item && item.deliveryPersonId){
             const response = await getDeliveryPersonById(item.deliveryPersonId)
@@ -105,7 +111,7 @@ const OrderDetailsScreen = ({ route, navigation }) => {
     return selectedOrder.prescriptions.map((prescription, index) => (
       <Image
         key={index}
-        source={{ uri: `http://192.168.1.13:8000/${prescription}` }}
+        source={{ uri: `${localServer}/${prescription}` }}
         style={styles.prescriptionImage}
       />
     ));
@@ -123,6 +129,14 @@ const OrderDetailsScreen = ({ route, navigation }) => {
       <Text style={styles.sectionHeader}>Pharmacie: {selectedPharmacy.username}</Text>
       
       {selectedOrder.deliveryPersonId ? <View><Text style={styles.sectionHeader}>Livreur: {selectedDeliveryPerson.username}</Text></View> : <View />}
+      
+      {selectedOrder && selectedOrder.orderStatus ?  
+      <View><Text style={styles.sectionHeader}>Status de commande: {selectedOrder.orderStatus}</Text></View>  : <View />}
+            
+      {selectedOrder && selectedOrder.deliveryStatus ?  
+      <View><Text style={styles.sectionHeader}>Status de livraison: {selectedOrder.deliveryStatus}</Text></View>  : <View />}
+
+
 
       {selectedOrder && selectedOrder.orderComment ?  
       <View><Text style={styles.sectionHeader}>Commentaire (pharmacie): {selectedOrder.orderComment}</Text></View>  : <View />}
@@ -256,6 +270,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingBottom: 30
   },
   acceptTouchable: {
     backgroundColor: "#28a745",

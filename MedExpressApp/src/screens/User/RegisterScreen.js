@@ -29,8 +29,8 @@ const RegisterScreen = ({navigation}) => {
   const [confirmpassword, setConfirmPassword] = useState(null);
   const [roles, setRoles] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
-  const [longitude, setLongitude] = useState(48.856614);
-  const [lattitude, setLattitude] = useState(2.3522219);
+  const [longitude, setLongitude] = useState("0");
+  const [lattitude, setLattitude] = useState("0");
   const {isLoading, register, error, getAllRoles, geocodeAddress} = useContext(AuthContext);
   const [selectedCoordinates, setSelectedCoordinates] = useState({
     latitude: 37.78825,
@@ -190,7 +190,7 @@ const RegisterScreen = ({navigation}) => {
         /> 
 
 
-         <View style={styles.mapContainer}>
+         {/* <View style={styles.mapContainer}>
           <MapView
             style={styles.map}
             initialRegion={{
@@ -216,7 +216,7 @@ const RegisterScreen = ({navigation}) => {
               description={'This is a description of the marker'}
             />
           </MapView>
-        </View>
+        </View> */}
 
         <View style={{}}>
           <Button
