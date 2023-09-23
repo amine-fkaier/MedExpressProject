@@ -47,7 +47,6 @@ const RegisterScreen = ({navigation}) => {
     if(text){
       const response = await geocodeAddress(text)
       if(response && response.latitude && response.longitude && !isNaN(response.latitude) && !isNaN(response.longitude)){
-        console.log({response})
         setLattitude(response.latitude)
         setLongitude(response.longitude)
       } else {
@@ -63,8 +62,22 @@ const RegisterScreen = ({navigation}) => {
       const fetchData = async () => {
         const rolesData = await getAllRoles();
         setRoles(rolesData);
+        if(rolesData && rolesData[0]){
+          setSelectedRole(rolesData[0])
+        }
       };
       fetchData();
+    } else {
+      setUsername(null); 
+      setFirstName(null); 
+      setLastName(null); 
+      setEmail(null);
+      setPassword(null);
+      setConfirmPassword(null);
+      setRoles(null);
+      setSelectedRole(null);
+      setLongitude("0");
+      setLattitude("0");
     }
 
     const disableBackButton = () => {

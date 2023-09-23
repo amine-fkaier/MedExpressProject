@@ -13,6 +13,8 @@ import {
 import {AuthContext} from '../../apis/Users';
 import UserAvatar from 'react-native-user-avatar';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { useIsFocused } from '@react-navigation/native';
+
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState(null);
@@ -20,8 +22,14 @@ const LoginScreen = ({navigation}) => {
   const {isLoading, login, error} = useContext(AuthContext);
 
 const image = { uri: "https://img.freepik.com/free-vector/abstract-shiny-grey-technology-background_1035-12620.jpg?w=740&t=st=1667419101~exp=1667419701~hmac=3bbdef34e890179fbe282cbbf64169f4f1d670dcc98086340713541f09d6ac23" };
+const isFocused = useIsFocused(); // Get the focus state using the hook
 
 useEffect(() => {
+  if (!isFocused) {
+    setEmail(null);
+    setPassword(null);
+  }
+
   const disableBackButton = () => {
     // Disable the default behavior of the back button
     return true;
@@ -34,7 +42,8 @@ useEffect(() => {
   return () => {
     BackHandler.removeEventListener('hardwareBackPress', disableBackButton);
   };
-}, []); // Add isFocused as a dependency
+
+}, [isFocused]); // Add isFocused as a dependency
 
 
 

@@ -14,7 +14,6 @@ exports.createUser = async (req, res) => {
     role,
     gpsPostion
   } = req.body;
-  const roleName = (await Role.findById(req.body.role)).name;
   const isNewUser = await User.isThisEmailInUse(email);
   if (!isNewUser)
     return res.json({
@@ -40,7 +39,7 @@ exports.createUser = async (req, res) => {
     role: roleObj,
     status,
     gpsPostion,
-    roleName
+    roleName: roleObj.name || null
   });
 
 
