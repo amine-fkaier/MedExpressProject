@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect} from 'react';
+import React, { useContext, useState, useEffect, useRef} from 'react';
 import {
   Button,
   Text,
@@ -17,6 +17,7 @@ import { useIsFocused } from '@react-navigation/native';
 import {Picker} from '@react-native-picker/picker';
 import MapView, { Marker } from 'react-native-maps';
 import WebView from 'react-native-webview';
+import mapTemplate from './map-template';
 
 const image = { uri: "https://img.freepik.com/free-vector/abstract-shiny-grey-technology-background_1035-12620.jpg?w=740&t=st=1667419101~exp=1667419701~hmac=3bbdef34e890179fbe282cbbf64169f4f1d670dcc98086340713541f09d6ac23" };
 
@@ -40,6 +41,19 @@ const RegisterScreen = ({navigation}) => {
 
   const handleCoordinateChange = (coordinate) => {
     setSelectedCoordinates(coordinate);
+  };
+
+    const webRef = useRef(null);
+  const [placeName, setPlaceName] = useState('');
+
+  const onButtonClick = () => {
+    webRef.current.injectJavaScript(`
+      const searchBox = document.querySelector('.tmap-searchbox__input');
+      if (searchBox) {
+        searchBox.value = '${placeName}';
+        searchBox.dispatchEvent(new Event('input'));
+      }
+    `);
   };
 
   const updateAdress = async (text) => {
@@ -190,8 +204,8 @@ const RegisterScreen = ({navigation}) => {
         /> 
 
 
-         {/* <View style={styles.mapContainer}>
-          <MapView
+         <View style={styles.mapContainer}>
+          {/* <MapView
             style={styles.map}
             initialRegion={{
               latitude: 48.856614,
@@ -204,8 +218,8 @@ const RegisterScreen = ({navigation}) => {
             <Marker
               draggable
               coordinate={{
-                latitude: lattitude,
-                longitude: longitude,
+                latitude: 48.856614,
+                longitude: 2.3522219,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
               }}
@@ -215,8 +229,14 @@ const RegisterScreen = ({navigation}) => {
               title={'Test Marker'}
               description={'This is a description of the marker'}
             />
-          </MapView>
-        </View> */}
+          </MapView> */}
+          <WebView
+            ref={webRef}
+            style={styles.map}
+            originWhitelist={['*']}
+            source={{ html: mapTemplate }}
+          /> 
+        </View>
 
         <View style={{}}>
           <Button
@@ -280,8 +300,8 @@ const styles = StyleSheet.create({
   },
   
   mapContainer: {
-    width: 200,
-    height: 200
+    width: Dimensions.get('window').width - Dimensions.get('window').width *0.2,
+    height: 300
   },
   map: {
     ...StyleSheet.absoluteFillObject,
