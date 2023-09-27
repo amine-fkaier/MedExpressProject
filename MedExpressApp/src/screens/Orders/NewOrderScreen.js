@@ -35,11 +35,8 @@ const NewOrderScreen = ({ navigation }) => {
     if(isFocused){
       const fetchData = async () => {
         try {
-          console.log({userInfo})
-
           if(userInfo && userInfo.user.role === "patient"){
             const repsonse = await getNearestPharmacies(userInfo.user.userId)
-            console.log({repsonse})
             setNearestPharmacies(repsonse.data || [])
           }
         } catch (error) {

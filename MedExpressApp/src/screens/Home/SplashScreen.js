@@ -2,7 +2,7 @@ import React, { useContext, useEffect  } from 'react';
 import {StyleSheet,ActivityIndicator, View, Image, Dimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
-import MySvgImage from '../../assets/logoApp.svg';
+import MySvgImage from '../../assets/logoAppSplash.svg';
 import { AuthContext } from '../../apis/Users.js';
 
 

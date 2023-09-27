@@ -1,30 +1,48 @@
 import React, { useLayoutEffect, useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  ToastAndroid,
+} from 'react-native';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { useIsFocused } from '@react-navigation/native';
 import { PatientContext } from '../../apis/patients';
 import { AuthContext } from '../../apis/Users';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PharmacyContext } from '../../apis/Pharmacies';
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 import { DeliveryPersonContext } from '../../apis/DeliveryPersons';
 import { localServer } from '../../config/config';
 
 const OrderDetailsScreen = ({ route, navigation }) => {
   const { item } = route.params;
-  const [selectedOrder, setSelectedOrder] = useState(item)
+  const [selectedOrder, setSelectedOrder] = useState(item);
   const [selectedPharmacy, setSelectedPharmacy] = useState({});
   const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState({});
-  const [selectedDeliveryPersonId, setSelectedDeliveryPersonId] = useState("")
+  const [selectedDeliveryPersonId, setSelectedDeliveryPersonId] = useState('');
   const [nearestDeliveryPersons, setNearestDeliveryPersons] = useState([]);
   const [orderComment, onChangeOrderComment] = useState('');
   const [deliveryComment, onChangeDeliveryComment] = useState('');
   const isFocused = useIsFocused();
   const { getOrderDetails, payOrder } = useContext(PatientContext);
-  const { acceptOrRefuseOrder, getNearestDeliveryPersons, passOrderToDelivery, getPharmacyById } = useContext(PharmacyContext);
-  const { acceptOrRefuseDeliveryOrder, finalizeOrder, getDeliveryPersonById } = useContext(DeliveryPersonContext);
+  const {
+    acceptOrRefuseOrder,
+    getNearestDeliveryPersons,
+    passOrderToDelivery,
+    getPharmacyById,
+  } = useContext(PharmacyContext);
+  const {
+    acceptOrRefuseDeliveryOrder,
+    finalizeOrder,
+    getDeliveryPersonById,
+  } = useContext(DeliveryPersonContext);
 
-  const {userInfo} = useContext(AuthContext);
+  const { userInfo } = useContext(AuthContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -36,76 +54,45 @@ const OrderDetailsScreen = ({ route, navigation }) => {
     });
   }, [navigation]);
 
-  
   useEffect(() => {
     if (isFocused) {
-      setSelectedOrder(item)
+      setSelectedOrder(item);
       const fetchData = async () => {
         try {
-          console.log({selectedOrder})
-         if (userInfo && userInfo.user.role === "pharmacy" && selectedOrder.orderStatus === "accepted" && 
-            selectedOrder.payed){
-            const response = await getNearestDeliveryPersons(userInfo.user.userId)
-            setNearestDeliveryPersons(response.data || [])
-            if(response && response.data && response.data[0] && response.data[0]._id){
-              setSelectedDeliveryPersonId(response.data[0]._id)
+          if (
+            userInfo &&
+            userInfo.user.role === 'pharmacy' &&
+            selectedOrder.orderStatus === 'accepted' &&
+            selectedOrder.payed
+          ) {
+            const response = await getNearestDeliveryPersons(
+              userInfo.user.userId
+            );
+            setNearestDeliveryPersons(response.data || []);
+            if (response && response.data && response.data[0] && response.data[0]._id) {
+              setSelectedDeliveryPersonId(response.data[0]._id);
             }
           }
-          if(item && item.deliveryPersonId){
-            const response = await getDeliveryPersonById(item.deliveryPersonId)
-            console.log({response})
-            setSelectedDeliveryPerson(response.data || [])
+          if (item && item.deliveryPersonId) {
+            const response = await getDeliveryPersonById(item.deliveryPersonId);
+            setSelectedDeliveryPerson(response.data || []);
           }
-          const selectedPharamacyData = await getPharmacyById(item.pharmacyId)
-          setSelectedPharmacy(selectedPharamacyData.data || {})
+          const selectedPharamacyData = await getPharmacyById(item.pharmacyId);
+          setSelectedPharmacy(selectedPharamacyData.data || {});
         } catch (error) {
           // Handle error if AsyncStorage or getMyOrders fails
-          console.error("Error fetching data:", error);
+          console.error('Error fetching data:', error);
         }
       };
       fetchData();
     } else {
-      setSelectedOrder({})
-      onChangeOrderComment("")
-      onChangeDeliveryComment("")
-      setSelectedPharmacy({})
-      setSelectedDeliveryPersonId("")
+      setSelectedOrder({});
+      onChangeOrderComment('');
+      onChangeDeliveryComment('');
+      setSelectedPharmacy({});
+      setSelectedDeliveryPersonId('');
     }
   }, [isFocused]);
-
-
-  handleRefuseOrAcceptOrder = async(response) => {
-    const newOrder = await acceptOrRefuseOrder(selectedOrder._id, response, orderComment)
-    setSelectedOrder(newOrder)
-  }
-
-  handlePassOrderToDelivery = async(selectedDeliveryPersonId, orderId) => {
-    if(selectedDeliveryPersonId && orderId){
-      const newOrder = await passOrderToDelivery(selectedDeliveryPersonId, orderId)
-      setSelectedOrder(newOrder)
-    } else {
-      ToastAndroid.show("Il faut choisir un livreur", ToastAndroid.LONG)
-    }
-  }
-  
-  handleRefuseOrAcceptDeliveryOrder = async(response) => {
-    console.log({id: selectedOrder._id, response, deliveryComment})
-    const newOrder = await acceptOrRefuseDeliveryOrder(selectedOrder._id, response, deliveryComment)
-    console.log({newOrder})
-    setSelectedOrder(newOrder)
-  }
-
-  handleFinalizeOrder = async(orderId) => {
-    const newOrder = await finalizeOrder(orderId)
-    setSelectedOrder(newOrder)
-  }
-
-  
-  handlePayOrder = async(orderId) => {
-    const newOrder = await payOrder(orderId)
-    setSelectedOrder(newOrder)
-  }
-
 
   const renderPrescriptionImages = () => {
     return selectedOrder.prescriptions.map((prescription, index) => (
@@ -119,117 +106,195 @@ const OrderDetailsScreen = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* <Text style={styles.header}>Détails de la commande</Text> */}
       <Text style={styles.sectionHeader}>Commande #{selectedOrder._id}</Text>
-      
-      {selectedOrder && selectedOrder.prescriptions && selectedOrder.prescriptions.length ? 
-      <Text style={styles.sectionHeader}>
-        Nombre d'ordonnances: {selectedOrder.prescriptions.length}
-      </Text> : <View/>}
+
+      {selectedOrder && selectedOrder.prescriptions && selectedOrder.prescriptions.length ? (
+        <Text style={styles.sectionHeader}>
+          Nombre d'ordonnances: {selectedOrder.prescriptions.length}
+        </Text>
+      ) : (
+        <View />
+      )}
       <Text style={styles.sectionHeader}>Pharmacie: {selectedPharmacy.username}</Text>
-      
-      {selectedOrder.deliveryPersonId ? <View><Text style={styles.sectionHeader}>Livreur: {selectedDeliveryPerson.username}</Text></View> : <View />}
-      
-      {selectedOrder && selectedOrder.orderStatus ?  
-      <View><Text style={styles.sectionHeader}>Status de commande: {selectedOrder.orderStatus}</Text></View>  : <View />}
-            
-      {selectedOrder && selectedOrder.deliveryStatus ?  
-      <View><Text style={styles.sectionHeader}>Status de livraison: {selectedOrder.deliveryStatus}</Text></View>  : <View />}
 
+      {selectedOrder.deliveryPersonId ? (
+        <Text style={styles.sectionHeader}>Livreur: {selectedDeliveryPerson.username}</Text>
+      ) : (
+        <View />
+      )}
 
+      {selectedOrder && selectedOrder.orderStatus ? (
+        <Text style={styles.sectionHeader}>Status de commande: {selectedOrder.orderStatus}</Text>
+      ) : (
+        <View />
+      )}
 
-      {selectedOrder && selectedOrder.orderComment ?  
-      <View><Text style={styles.sectionHeader}>Commentaire (pharmacie): {selectedOrder.orderComment}</Text></View>  : <View />}
+      {selectedOrder && selectedOrder.deliveryStatus ? (
+        <Text style={styles.sectionHeader}>Status de livraison: {selectedOrder.deliveryStatus}</Text>
+      ) : (
+        <View />
+      )}
 
-      {selectedOrder && selectedOrder.deliveryComment ?  
-      <View><Text style={styles.sectionHeader}>Commentaire (livreur): {selectedOrder.deliveryComment}</Text></View> : <View />}
+      {selectedOrder && selectedOrder.orderComment ? (
+        <Text style={styles.sectionHeader}>Commentaire (pharmacie): {selectedOrder.orderComment}</Text>
+      ) : (
+        <View />
+      )}
 
-      {selectedOrder && selectedOrder.prescriptions?  
-      
-      <View><Text style={styles.sectionHeader}>Ordonnance(s):</Text> 
-     { renderPrescriptionImages() }
-      </View>
-      : 
-      
-      <View />}
+      {selectedOrder && selectedOrder.deliveryComment ? (
+        <Text style={styles.sectionHeader}>Commentaire (livreur): {selectedOrder.deliveryComment}</Text>
+      ) : (
+        <View />
+      )}
 
+      {selectedOrder && selectedOrder.prescriptions ? (
+        <View>
+          <Text style={styles.sectionHeader}>Ordonnance(s):</Text>
+          {renderPrescriptionImages()}
+        </View>
+      ) : (
+        <View />
+      )}
 
-
-      {
-        userInfo && userInfo.user && userInfo.user.role === "patient" && selectedOrder.orderStatus === "accepted" && 
-        (selectedOrder.deliveryStatus === "pending" || !selectedOrder.deliveryStatus) && !selectedOrder.payed? 
+      {userInfo &&
+        userInfo.user &&
+        userInfo.user.role === 'patient' &&
+        selectedOrder.orderStatus === 'accepted' &&
+        (selectedOrder.deliveryStatus === 'pending' || !selectedOrder.deliveryStatus) &&
+        !selectedOrder.payed ? (
         <View style={styles.touchableView}>
-          <TouchableOpacity style={styles.acceptTouchable} onPress={() => handlePayOrder(item._id)}><Text style={styles.touchableText}>Payer</Text></TouchableOpacity>
-        </View> : <View/>
-      }
+          <TouchableOpacity
+            style={styles.acceptTouchable}
+            onPress={() => handlePayOrder(item._id)}
+          >
+            <Text style={styles.touchableText}>Payer</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View />
+      )}
 
-      {
-        userInfo && userInfo.user && userInfo.user.role === "pharmacy" && selectedOrder.orderStatus === "pending" ? 
+      {userInfo &&
+        userInfo.user &&
+        userInfo.user.role === 'pharmacy' &&
+        selectedOrder.orderStatus === 'pending' ? (
         <View>
           <View>
             <TextInput
               style={styles.input}
               onChangeText={onChangeOrderComment}
               value={orderComment}
-              placeholder='Laisser une commentaire'
+              placeholder='Laisser un commentaire'
             />
           </View>
           <View style={styles.touchableView}>
-            <TouchableOpacity style={styles.acceptTouchable} onPress={() => handleRefuseOrAcceptOrder("accepted")}><Text style={styles.touchableText}>Accepter</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.refuseTouchable} onPress={() => handleRefuseOrAcceptOrder("refused")}><Text style={styles.touchableText}>Refuser</Text></TouchableOpacity>
-          </View> 
+            <TouchableOpacity
+              style={styles.acceptTouchable}
+              onPress={() => handleRefuseOrAcceptOrder('accepted')}
+            >
+              <Text style={styles.touchableText}>Accepter</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.refuseTouchable}
+              onPress={() => handleRefuseOrAcceptOrder('refused')}
+            >
+              <Text style={styles.touchableText}>Refuser</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        
-        : <View/>
-        
-      }
-      {
-        userInfo && userInfo.user && userInfo.user.role === "pharmacy" && selectedOrder.orderStatus === "accepted" 
-        &&  !selectedOrder.deliveryStatus && selectedOrder.payed? 
+      ) : (
+        <View />
+      )}
+
+      {userInfo &&
+        userInfo.user &&
+        userInfo.user.role === 'pharmacy' &&
+        selectedOrder.orderStatus === 'accepted' &&
+        !selectedOrder.deliveryStatus &&
+        selectedOrder.payed ? (
         <View style={styles.selectDeliveryPersonView}>
           <View style={styles.pickerView}>
-            <Text>Choisir une livreur:</Text>
+            <Text>Choisir un livreur:</Text>
             <Picker
               style={styles.picker}
               selectedValue={selectedDeliveryPersonId}
-              onValueChange={(itemValue, itemIndex) => setSelectedDeliveryPersonId(itemValue)}
+              onValueChange={(itemValue, itemIndex) =>
+                setSelectedDeliveryPersonId(itemValue)
+              }
             >
-              {nearestDeliveryPersons.map((item)=> <Picker.Item key={item._id} label={item.username} value={item._id} />)}
+              {nearestDeliveryPersons.map((item) => (
+                <Picker.Item
+                  key={item._id}
+                  label={item.username}
+                  value={item._id}
+                />
+              ))}
             </Picker>
           </View>
           <View style={styles.touchableView}>
-            <TouchableOpacity style={styles.acceptTouchable} onPress={() => handlePassOrderToDelivery(selectedDeliveryPersonId, item._id)}><Text style={styles.touchableText}>Confirmer</Text></TouchableOpacity>
-          </View> 
-        </View> : <View/>
-      }
+            <TouchableOpacity
+              style={styles.acceptTouchable}
+              onPress={() => handlePassOrderToDelivery(selectedDeliveryPersonId, item._id)}
+            >
+              <Text style={styles.touchableText}>Confirmer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <View />
+      )}
 
-      {
-        userInfo && userInfo.user && userInfo.user.role === "deliveryPerson" && selectedOrder.orderStatus === "accepted" 
-        && selectedOrder.deliveryStatus && selectedOrder.deliveryStatus === "pending" ? 
+      {userInfo &&
+        userInfo.user &&
+        userInfo.user.role === 'deliveryPerson' &&
+        selectedOrder.orderStatus === 'accepted' &&
+        selectedOrder.deliveryStatus &&
+        selectedOrder.deliveryStatus === 'pending' ? (
         <View>
           <View>
             <TextInput
               style={styles.input}
               onChangeText={onChangeDeliveryComment}
               value={deliveryComment}
-              placeholder='ecrire une commentaire'
+              placeholder='Écrire un commentaire'
             />
           </View>
           <View style={styles.touchableView}>
-              <TouchableOpacity style={styles.acceptTouchable} onPress={() => handleRefuseOrAcceptDeliveryOrder("accepted")}><Text style={styles.touchableText}>Accepter</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.refuseTouchable} onPress={() => handleRefuseOrAcceptDeliveryOrder("refused")}><Text style={styles.touchableText}>Refuser</Text></TouchableOpacity>
-          </View> 
+            <TouchableOpacity
+              style={styles.acceptTouchable}
+              onPress={() => handleRefuseOrAcceptDeliveryOrder('accepted')}
+            >
+              <Text style={styles.touchableText}>Accepter</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.refuseTouchable}
+              onPress={() => handleRefuseOrAcceptDeliveryOrder('refused')}
+            >
+              <Text style={styles.touchableText}>Refuser</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        : <View/> 
-      }
+      ) : (
+        <View />
+      )}
 
-      {
-        userInfo && userInfo.user && userInfo.user.role === "deliveryPerson" && selectedOrder.orderStatus === "accepted" 
-        && selectedOrder.deliveryStatus && selectedOrder.deliveryStatus === "accepted" ? 
+      {userInfo &&
+        userInfo.user &&
+        userInfo.user.role === 'deliveryPerson' &&
+        selectedOrder.orderStatus === 'accepted' &&
+        selectedOrder.deliveryStatus &&
+        selectedOrder.deliveryStatus === 'accepted' ? (
         <View style={styles.touchableView}>
-            <TouchableOpacity style={styles.acceptTouchable} onPress={() => handleFinalizeOrder(selectedOrder._id)}><Text style={styles.touchableText}>Finaliser commande</Text></TouchableOpacity>
-          </View> : <View/>   
-      }
+          <TouchableOpacity
+            style={styles.acceptTouchable}
+            onPress={() => handleFinalizeOrder(selectedOrder._id)}
+          >
+            <Text style={styles.touchableText}>Finaliser commande</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View />
+      )}
     </ScrollView>
   );
 };
@@ -241,52 +306,59 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
-    padding: 10
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    padding: 10,
   },
   sectionHeader: {
     fontSize: 18,
     fontWeight: 'bold',
-    margin: 8,
+    marginVertical: 8,
   },
   prescriptionImage: {
     width: '100%',
     height: 200,
     resizeMode: 'cover',
-    marginBottom: 30
+    marginBottom: 20,
   },
   input: {
     height: 40,
-    margin: 12,
+    marginVertical: 12,
     borderWidth: 1,
     padding: 10,
   },
   touchableView: {
-    flex: 1,
-    // backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingBottom: 30
+    paddingBottom: 20,
   },
   acceptTouchable: {
-    backgroundColor: "#28a745",
+    backgroundColor: '#28a745',
     justifyContent: 'center',
-    width: "50%",
-    padding: 5,
-    margin: 5,
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 5,
   },
   refuseTouchable: {
-    backgroundColor: "#dc3545",
+    backgroundColor: '#dc3545',
     justifyContent: 'center',
-    width: "50%",
-    padding: 5,
-    margin: 5
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 5,
   },
   touchableText: {
-    alignSelf: "center"
-  }
+    alignSelf: 'center',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  selectDeliveryPersonView: {
+    marginTop: 20,
+  },
+  pickerView: {
+    marginBottom: 10,
+  },
+  picker: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
 });

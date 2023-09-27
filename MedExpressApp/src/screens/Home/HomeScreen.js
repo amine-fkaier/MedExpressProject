@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Button, StyleSheet, Text, View, BackHandler, FlatList, Alert, PermissionsAndroid,  TouchableOpacity } from 'react-native';
+import {Button, StyleSheet, Text, View, BackHandler, FlatList, Alert, PermissionsAndroid,  TouchableOpacity, Dimensions } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { useIsFocused } from '@react-navigation/native';
 import {AuthContext} from '../../apis/Users.js'
@@ -9,6 +9,7 @@ import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import { greenColor, redColor, standardColor } from '../../config/config.js';
 
 
 const HomeScreen = ({navigation}) => {
@@ -68,7 +69,7 @@ const HomeScreen = ({navigation}) => {
             console.log('Error getting FCM token:', error);
           });
 
-          if(userInfo && userInfo.user.role === "patient"){
+          if(userInfo && (userInfo.user.role === "patient" || userInfo.user.role === "deliveryPerson")){
             const response = await getNearestPharmacies(userInfo.user.userId)
             setNearestPharmacies(response.data || [])
           } else if (userInfo && userInfo.user.role === "pharmacy"){
@@ -139,11 +140,11 @@ const HomeScreen = ({navigation}) => {
       }, []);
     
       const renderItem = ({ item }) => (
-        <View style={{ padding: 20, margin: 10, backgroundColor: "#F0E2E2", borderColor: 'black', borderWidth: 1 }}>
+        <View style={{ padding: 20, margin: 10, backgroundColor: standardColor, borderColor: 'black', borderWidth: 1 }}>
           <Text>Username: {item && item.firstName ? item.firstName : ""}</Text>
           <Text>Email: {item && item.email ? item.email : ""}</Text>
           <Text>Username: {item && item.username ? item.username : ""}</Text>
-          <Text>Distance: {item && item.distance ? item.distance : ""}</Text>
+          <Text>Distance: {item && item.distance != null ? item.distance : ""}</Text>
         </View>
       );
     
@@ -153,7 +154,8 @@ const HomeScreen = ({navigation}) => {
       };
     
       const renderUserItem = ({ item }) => (
-        <TouchableOpacity style={styles.touchable} onPress={() => handleDetailsPress(item)}>
+        <TouchableOpacity style={[styles.touchable, {backgroundColor: item.status === "accepted"?  greenColor : redColor}]} 
+                          onPress={() => handleDetailsPress(item)}>
           <View style={styles.detailsContainer}>
           <Text style={styles.orderId}>Username: {item.username}</Text>
             <Text style={styles.prescriptionText}>FirstName: {item.firstName}</Text>
@@ -167,16 +169,34 @@ const HomeScreen = ({navigation}) => {
           </View>
         </TouchableOpacity>
       );
-    
+
+      const getDataList = () => {
+        if (userInfo && userInfo.user && userInfo.user.role) {
+          if (userInfo.user.role === "patient" || userInfo.user.role === "deliveryPerson") {
+            return nearestPharmacies;
+          } else if (userInfo.user.role === "admin") {
+            return allUsers;
+          }
+        }
+        return nearestDeliveryPersons;
+      };
+      
 
   return (
-    <View style={{ flex: 1, padding: 5 }}>
-      <FlatList
-      data={userInfo && userInfo.user && userInfo.user.role && (userInfo.user.role === "patient" || userInfo.user.role === "deliveryPerson") ? 
-      nearestPharmacies : userInfo && userInfo.user && userInfo.user.role === "admin" ? allUsers : nearestDeliveryPersons}
-      renderItem={userInfo && userInfo.user && userInfo.user.role != "admin" ? renderItem  : renderUserItem}
-      keyExtractor={item => item._id}
-      />
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: getDataList().length > 0 ? "stretch" : "center" }}>
+      {getDataList().length > 0 ? (
+        <FlatList
+          data={getDataList()}
+          renderItem={userInfo && userInfo.user && userInfo.user.role !== "admin" ? renderItem : renderUserItem}
+          keyExtractor={item => item._id}
+        />
+      ) : (
+        <Text style={{fontSize: 18}}>
+          {userInfo && userInfo.user && userInfo.user.role
+            ? `Aucun ${userInfo.user.role === "patient" || userInfo.user.role === "deliveryPerson" ? "pharmacie" : userInfo.user.role === "pharmacy" ? "livreur" : ""}`
+            : ""}
+        </Text>
+      )}
     </View>
   );
 };
@@ -192,7 +212,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   touchable: {
-    backgroundColor: '#F0E2E2',
+    width: Dimensions.get("window").width,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,

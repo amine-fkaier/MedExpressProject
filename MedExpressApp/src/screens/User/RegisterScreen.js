@@ -9,7 +9,8 @@ import {
   ImageBackground,
   ScrollView,
   Dimensions,
-  BackHandler 
+  BackHandler, 
+  Image
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {AuthContext} from '../../apis/Users.js';
@@ -117,8 +118,10 @@ const RegisterScreen = ({navigation}) => {
     <ScrollView style={styles.scrollView}>
     <View style={styles.container}>
       <Spinner visible={isLoading} />
-      <ImageBackground source={image} resizeMode="cover" style={styles.image}>
-      <Text style={styles.title}>Sing Up</Text>
+      {/* <ImageBackground source={image} resizeMode="cover" style={styles.image}> */}
+      {/* <Text style={styles.title}>Sing Up</Text> */}
+      <Image source={require('../../assets/logo.jpeg')} style={styles.image} />
+
       <View style={styles.wrapper}>
       <TextInput
           style={styles.input}
@@ -254,7 +257,7 @@ const RegisterScreen = ({navigation}) => {
           </View>
         </View>
       </View>
-      </ImageBackground>
+      {/* </ImageBackground> */}
     </View>
     </ScrollView>
   );
@@ -262,18 +265,22 @@ const RegisterScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({ 
   scrollView: {
-    flexgrow: 1
+    flexgrow: 1,
+    backgroundColor: 'white'
+
   },
   container: {
     flex: 1,
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height + Dimensions.get('window').height*0.5,
+    height: Dimensions.get('window').height + Dimensions.get('window').height*0.8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+
   },
   image: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: 'center',
-
+    width: Dimensions.get('window').width + Dimensions.get('window').width *0.2,
+    height: Dimensions.get('window').height / 3,
   },
   title:{
     fontSize:30,

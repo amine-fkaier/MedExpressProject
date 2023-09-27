@@ -8,13 +8,15 @@ import {
   View,
   StyleSheet,
   ToastAndroid,
-  BackHandler
+  BackHandler,
+  Image,
+  Dimensions
 } from 'react-native';
 import {AuthContext} from '../../apis/Users';
 import UserAvatar from 'react-native-user-avatar';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { useIsFocused } from '@react-navigation/native';
-
+import LogoImage from '../../assets/logo.jpeg';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState(null);
@@ -51,8 +53,11 @@ useEffect(() => {
   return (
     <View style={styles.container}>
     <Spinner visible={isLoading} />
-     <ImageBackground source={image} resizeMode="cover" style={styles.image}>
-      <UserAvatar size={200} style={styles.avatar}  src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" />
+     {/* <ImageBackground source={image} resizeMode="cover" style={styles.image}> */}
+     <Image source={require('../../assets/logo.jpeg')} style={styles.image} />
+      {/* <View>
+          <MySvgImage />
+      </View> */}
       <View style={styles.wrapper}>
       {error ? (
         <Text style={{ color: 'red', fontSize: 18, textAlign: 'center' }}>
@@ -98,7 +103,7 @@ useEffect(() => {
           </TouchableOpacity>
         </View>
       </View>
-      </ImageBackground>
+      {/* </ImageBackground> */}
     </View>
   );
 };
@@ -106,21 +111,23 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-   
-    
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+    // backgroundColor: 'red'
   },
   image: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: 'center',
+    // flex: 1,
+    // justifyContent: "center",
+    // alignItems: 'center',
+    width: Dimensions.get('window').width + Dimensions.get('window').width *0.2,
+    height: Dimensions.get('window').height / 3,
   },
   wrapper: {
     width: '80%',
-  
-  },
-  avatar:{
-    marginBottom:37,
-    backgroundColor:'white',
+    height: Dimensions.get('window').width - Dimensions.get('window').width *0.2,
+    // backgroundColor: 'red'
+
   },
   input: {
     marginBottom: 12,

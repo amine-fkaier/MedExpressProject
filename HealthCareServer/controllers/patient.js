@@ -39,11 +39,13 @@ async function getNearestPharmacies(req, res) {
         const longPH = pharmacy.gpsPostion.longitude;
         const latPH = pharmacy.gpsPostion.lattitude;
         const dist = distance(latPH, longPH, latPatient, longPatient);
-        if(dist <= 100){
+        
+        if(parseInt(dist) <= 100){
           pharmacy['distance'] = dist;
           nearestPhramacies.push(pharmacy)
         }
       });
+      console.log({nearestPhramacies})
       res.json({ success: true, data: nearestPhramacies || []});
 
   } catch (error) {
