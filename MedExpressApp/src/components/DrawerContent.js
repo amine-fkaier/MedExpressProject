@@ -5,6 +5,7 @@ import {AuthContext} from '../apis/Users.js'
 import Entypo from 'react-native-vector-icons/Entypo';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import IoniconsIcons from 'react-native-vector-icons/Ionicons';
+import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 
 
@@ -23,10 +24,23 @@ const DrawerContent = () => {
         <Text style={styles.itemText}>Accueil</Text>
       </TouchableOpacity>
 
+      
+      {userInfo && userInfo.user && userInfo.user.role === "admin"?
+      <View>
+        <TouchableOpacity onPress={() => handleNavigation('Statistics')} style={styles.item}>
+          <EntypoIcons name="bar-graph" size={20} />
+          <Text style={styles.itemText}>Statistiques</Text>
+        </TouchableOpacity>
+    </View>
+     :
+     <View/>}
+
       <TouchableOpacity onPress={() => handleNavigation('Notifs')} style={styles.item}>
         <IoniconsIcons name="notifications" size={20} />
         <Text style={styles.itemText}>Notifications</Text>
       </TouchableOpacity>
+
+
 
       {userInfo && userInfo.user && userInfo.user.role !== "admin"?
       <View>

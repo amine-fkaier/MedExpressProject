@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     // justifyContent: "center",
     // alignItems: 'center',
-    width: Dimensions.get('window').width + Dimensions.get('window').width *0.2,
+    width: Dimensions.get('window').width - Dimensions.get('window').width *0.2,
     height: Dimensions.get('window').height / 3,
   },
   wrapper: {

@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
 
   },
   image: {
-    width: Dimensions.get('window').width + Dimensions.get('window').width *0.2,
+    width: Dimensions.get('window').width - Dimensions.get('window').width *0.2,
     height: Dimensions.get('window').height / 3,
   },
   title:{

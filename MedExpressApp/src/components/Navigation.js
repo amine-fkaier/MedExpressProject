@@ -18,6 +18,7 @@ import OrderDetailsScreen from '../screens/Orders/OrderDetails';
 import NotifsScreen from '../screens/Home/NotifsScreen';
 import UserScreen from '../screens/User/UserDetails';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Import your desired icon library
+import StatisticsScreen from '../screens/Statistics/Statistics';
 
 
 // const Stack = createNativeStackNavigator();
@@ -87,6 +88,11 @@ const DrawerNavigator = () => {
               name="Notifs"
               component={NotifsScreen}
               options={{ title: 'Notifications' }}
+            />
+            <Drawer.Screen
+              name="Statistics"
+              component={StatisticsScreen}
+              options={{ title: 'Statistiques' }}
             />
             <Drawer.Screen
               name="NewOrder"
