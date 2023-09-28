@@ -220,6 +220,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
   
+  const getOrdersPerMonth = async() => {
+    const {data} = await client.get(`/users/getOrdersPerMonth`);
+    return data;
+  }
 
 
   return (
@@ -239,7 +243,8 @@ export const AuthProvider = ({ children }) => {
         getAllUsers,
         verifyUserAccount,
         getNotifsByUser,
-        geocodeAddress
+        geocodeAddress,
+        getOrdersPerMonth
       }}>
     {children}
   </AuthContext.Provider>

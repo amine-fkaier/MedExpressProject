@@ -3,6 +3,7 @@ const User = require('../models/user');
 const Role = require('../models/role');
 const Notif = require('../models/notif')
 const { distance, sendNotif } = require('../utils/functions');
+const Order = require('../models/order');
 
 exports.createUser = async (req, res) => {
   const {
@@ -195,4 +196,22 @@ exports.getNotifsByUser = async(req, res) => {
   const {userId} = req.params;
   const notifs = await Notif.find({receiverId: userId});
   res.json({ success: true, data: notifs });
+}
+
+
+exports.getOrdersPerMonth = async(req, res) => {
+  const allOrders = await Order.find();
+  const result = {}
+  await Promise.all(
+      allOrders.map(async (item) => {
+        if (item && item.createdAt) {
+          let month = (item.createdAt.getMonth() + 1).toString();
+          month = month.length === 1 ? "0" + month : month;
+          const year = item.createdAt.getFullYear();
+          const date = `${month}/${year}`;
+          result[date] = (result[date] === undefined) ? 1 : result[date] + 1;
+        }
+      })
+    );
+  res.json({success: true, data: result})
 }

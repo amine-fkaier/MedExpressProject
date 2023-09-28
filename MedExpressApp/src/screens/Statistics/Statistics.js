@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { PieChart } from 'react-native-chart-kit';
+import React, { useState, useEffect, useContext, useLayoutEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { LineChart } from 'react-native-chart-kit';
+import { AuthContext } from '../../apis/Users';
+import { HeaderBackButton } from '@react-navigation/elements';
+import { useIsFocused } from '@react-navigation/native';
 
 // Dummy data for orders per month (replace with your actual data)
 const ordersData = [
@@ -10,54 +13,82 @@ const ordersData = [
   // Add more months and order data as needed
 ];
 
-const StatisticsScreen = () => {
-  const [monthlyOrders, setMonthlyOrders] = useState([]);
+const StatisticsScreen = ({navigation}) => {
+  const [labels, setLabels] = useState([]);
+  const [dataSets, setDataSets] = useState([]);
 
+  const {getOrdersPerMonth} = useContext(AuthContext);
+  const isFocused = useIsFocused(); // Get the focus state using the hook
   useEffect(() => {
-    // Fetch your orders data here and update monthlyOrders state with actual data
-    setMonthlyOrders(ordersData);
-  }, []);
+    if (isFocused) {
+      const fetchData = async () => {
+          const result = await getOrdersPerMonth();
+          
+          if(result && result.data && result.success){
+            let resultLables = []
+            let resultDataSets = []
+            Object.keys(result.data).map((item, index)=> {
+              resultLables.push(item)
+              resultDataSets.push(result.data[item])
+            })
+            console.log({resultLables,resultDataSets })
+            setLabels(resultLables)
+            setDataSets(resultDataSets)
+          }
+      }
+      fetchData()
+    }
+  }, [isFocused]);
 
-  // Data for the pie chart
-  const chartData = monthlyOrders.map((item) => ({
-    name: item.month,
-    orders: item.orders,
-    color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // Random color
-    legendFontColor: '#7F7F7F',
-    legendFontSize: 15,
-  }));
-
-  const chartConfig = {
-    color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`, // Change the chart's color here
-  };
-
-  const renderOrderItem = ({ item }) => (
-    <View style={styles.orderItem}>
-      <Text style={styles.month}>{item.month}</Text>
-      <Text style={styles.orderCount}>{item.orders} Orders</Text>
-    </View>
-  );
+  
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <HeaderBackButton onPress={() => navigation.navigate('Home')} />
+      ),
+      headerShown: true,
+      drawerEnabled: false,
+    });
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Orders Per Month</Text>
+      <Text style={styles.header}>Commandes/Mois</Text>
 
-      <FlatList
+      {/* <FlatList
         data={monthlyOrders}
         renderItem={renderOrderItem}
         keyExtractor={(item) => item.month}
-      />
+      /> */}
 
       <View style={styles.pieChartContainer}>
-        <PieChart
-          data={chartData}
-          width={300}
-          height={200}
-          chartConfig={chartConfig}
-          accessor="orders"
-          backgroundColor="transparent"
-          paddingLeft="15"
-          absolute
+        <LineChart
+          data={{
+            labels: labels,
+            datasets: [
+              {
+                data: dataSets,
+              },
+            ],
+          }}
+          width={Dimensions.get('window').width - 16} // from react-native
+          height={220}
+          yAxisLabel={'Rs'}
+          chartConfig={{
+            backgroundColor: '#1cc910',
+            backgroundGradientFrom: '#eff3ff',
+            backgroundGradientTo: '#efefef',
+            decimalPlaces: 2, // optional, defaults to 2dp
+            color: (opacity = 255) => `rgba(0, 0, 0, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
         />
       </View>
     </View>

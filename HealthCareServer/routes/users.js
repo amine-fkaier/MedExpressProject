@@ -15,7 +15,8 @@ const {
   getAllRoles,
   saveFcmToken,
   getAllUsers,
-  getNotifsByUser
+  getNotifsByUser,
+  getOrdersPerMonth
 } = require('../controllers/user');
 const { isAuth, isAdmin } = require('../middlewares/auth');
 const {
@@ -32,5 +33,6 @@ router.get('/getAllRoles', getAllRoles);
 router.post('/saveFcmToken', saveFcmToken);
 router.get('/getAllUsers', getAllUsers);
 router.get('/getNotifsByUser/:userId', getNotifsByUser);
+router.get('/getOrdersPerMonth', getOrdersPerMonth)
 
 module.exports = router;
