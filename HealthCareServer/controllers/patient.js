@@ -57,6 +57,7 @@ async function getNearestPharmacies(req, res) {
 
 // Define API routes
 async function addOrder(req, res) {
+  console.log({req: req.files})
   try {
     const newOrder = new Order({
       orderStatus: 'pending',
@@ -70,8 +71,6 @@ async function addOrder(req, res) {
 
     const sender = await User.findById(req.body.patientId);
     const receiver = await User.findById(req.body.pharmacyId);
-
-    console.log({receiver, sender})
     if(receiver) {
       const token = receiver.fcmToken; // Assuming you have a single token in the tokens array
       const message = {

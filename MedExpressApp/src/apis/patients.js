@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect  } from 'react';
 import { ToastAndroid } from 'react-native';
 
 import client from '../config/config'
+import { err } from 'react-native-svg/lib/typescript/xml';
 export const PatientContext = createContext();
 
 
@@ -13,8 +14,9 @@ export const PatientsProvider = ({ children }) => {
       const formData = new FormData();
       formData.append('patientId', userId);
       formData.append('pharmacyId', pharmacyId);
-      formData.append('folderName', `${userId}_${(Math.floor(new Date().getTime())/ 1000)}`);
-      let counter = 1
+      formData.append('folderName', `${userId}_${Math.floor(new Date().getTime() / 1000)}`);
+  
+      let counter = 1;
       selectedImages.forEach((image) => {
         formData.append('images', {
           uri: image,
@@ -23,24 +25,36 @@ export const PatientsProvider = ({ children }) => {
         });
         counter++;
       });
-
-      const {data} = await client.post('/patients/addOrder', formData, {
+  
+      const { data } = await client.post('/patients/addOrder', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      if(data && data.success){
-        ToastAndroid.show("Cette commande est ajoutée avec succés", ToastAndroid.LONG)
+      
+      if (data && data.success) {
+        ToastAndroid.show("Cette commande est ajoutée avec succès", ToastAndroid.LONG);
         navigation.navigate('MyOrders');
       } else {
-        ToastAndroid.show("Error ajout commande", ToastAndroid.LONG)
+        ToastAndroid.show("Error ajout commande", ToastAndroid.LONG);
       }
-
     } catch (error) {
-      console.error({error});
       // Handle errors
+      console.error('Error in addOrder:', error);
+  
+      if (error.isAxiosError) {
+        // This is an Axios-specific error
+        console.error('Axios error details:');
+        console.error('Request config:', error.config);
+        console.error('Response status:', error.response?.status);
+        console.error('Response data:', error.response?.data);
+      } else {
+        // This is a generic error (e.g., a network error)
+        console.error('Generic error:', error.message);
+      }
     }
   };
+  
 
   const getMyOrders = async (userId) => {
     const {data} = await client.get(`/patients/getMyOrders/${userId}`);

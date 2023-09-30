@@ -46,14 +46,17 @@ export const PharmaciesProvider = ({ children }) => {
       orderId,
       deliveryPersonId: userId
     }
-    const {data} = await client.post('/pharmacies/passOrderToDelivery', body);
+    if(body && body.orderId && body.deliveryPersonId){
+      const {data} = await client.post('/pharmacies/passOrderToDelivery', body);
+      ToastAndroid.show("La demande de livraison est envoyée avec succés", ToastAndroid.LONG)
+      return data.data;
+    } 
 
-    ToastAndroid.show("La demande de livraison est envoyée avec succés", ToastAndroid.LONG)
-    return data.data;
+    ToastAndroid.show("Il faut choisir un livreur", ToastAndroid.LONG)
+    
   }
 
   const getPharmacyById = async(pharmacyId) => {
-    console.log({pharmacyId})
     const {data} = await client.get(`/pharmacies/getPharmacyById/${pharmacyId}`);
     return data;
   }

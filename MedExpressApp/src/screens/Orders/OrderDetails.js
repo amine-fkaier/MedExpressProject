@@ -54,36 +54,66 @@ const OrderDetailsScreen = ({ route, navigation }) => {
     });
   }, [navigation]);
 
+  const fetchData = async () => {
+    console.log({selectedOrder})
+    try {
+      if (
+        userInfo &&
+        userInfo.user.role === 'pharmacy' &&
+        userInfo.user.userId &&
+        selectedOrder.orderStatus === 'accepted' &&
+        selectedOrder.payed
+      ) {
+        const response = await getNearestDeliveryPersons(
+          userInfo.user.userId
+        );
+        if(response && response.success){
+          setNearestDeliveryPersons(response.data || []);
+          if (response && response.data && response.data[0] && response.data[0]._id) {
+            setSelectedDeliveryPersonId(response.data[0]._id);
+          }
+        } else {
+          console.log("error: getNearestDeliveryPersons")
+        }
+      }
+
+      if (item && item.deliveryPersonId) {
+        const response = await getDeliveryPersonById(item.deliveryPersonId);
+        if(response && response.success){
+          setSelectedDeliveryPerson(response.data || []);
+        } else {
+          console.log("error: getDeliveryPersonById")
+        }
+      }
+
+      if (item && item.pharmacyId) {
+        const selectedPharamacyData = await getPharmacyById(item.pharmacyId);
+        if(selectedPharamacyData && selectedPharamacyData.success){
+          setSelectedPharmacy(selectedPharamacyData.data || {});
+        } else {
+          console.log("error: getPharmacyById")
+        }
+      }
+      
+      if(item && item._id){
+        const thisOrder = await getOrderDetails(item._id);
+        if(thisOrder && thisOrder.success){
+          setSelectedOrder(thisOrder.data || {});
+        } else {
+          console.log("error: getOrderDetails")
+        }
+      }
+
+
+    } catch (error) {
+      // Handle error if AsyncStorage or getMyOrders fails
+      console.error('Error fetching data:', error);
+    }
+  };
+
   useEffect(() => {
     if (isFocused) {
       setSelectedOrder(item);
-      const fetchData = async () => {
-        try {
-          if (
-            userInfo &&
-            userInfo.user.role === 'pharmacy' &&
-            selectedOrder.orderStatus === 'accepted' &&
-            selectedOrder.payed
-          ) {
-            const response = await getNearestDeliveryPersons(
-              userInfo.user.userId
-            );
-            setNearestDeliveryPersons(response.data || []);
-            if (response && response.data && response.data[0] && response.data[0]._id) {
-              setSelectedDeliveryPersonId(response.data[0]._id);
-            }
-          }
-          if (item && item.deliveryPersonId) {
-            const response = await getDeliveryPersonById(item.deliveryPersonId);
-            setSelectedDeliveryPerson(response.data || []);
-          }
-          const selectedPharamacyData = await getPharmacyById(item.pharmacyId);
-          setSelectedPharmacy(selectedPharamacyData.data || {});
-        } catch (error) {
-          // Handle error if AsyncStorage or getMyOrders fails
-          console.error('Error fetching data:', error);
-        }
-      };
       fetchData();
     } else {
       setSelectedOrder({});
@@ -165,7 +195,10 @@ const OrderDetailsScreen = ({ route, navigation }) => {
         <View style={styles.touchableView}>
           <TouchableOpacity
             style={styles.acceptTouchable}
-            onPress={() => handlePayOrder(item._id)}
+            onPress={() => {
+              payOrder(item._id)
+              fetchData()
+            }}
           >
             <Text style={styles.touchableText}>Payer</Text>
           </TouchableOpacity>
@@ -190,13 +223,19 @@ const OrderDetailsScreen = ({ route, navigation }) => {
           <View style={styles.touchableView}>
             <TouchableOpacity
               style={styles.acceptTouchable}
-              onPress={() => handleRefuseOrAcceptOrder('accepted')}
+              onPress={() =>{ 
+                acceptOrRefuseOrder(item._id, 'accepted', orderComment)
+                fetchData()
+              }}
             >
               <Text style={styles.touchableText}>Accepter</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.refuseTouchable}
-              onPress={() => handleRefuseOrAcceptOrder('refused')}
+              onPress={() => {
+                acceptOrRefuseOrder(item._id, 'refused', orderComment)
+                fetchData()
+              }}
             >
               <Text style={styles.touchableText}>Refuser</Text>
             </TouchableOpacity>
@@ -213,7 +252,7 @@ const OrderDetailsScreen = ({ route, navigation }) => {
         !selectedOrder.deliveryStatus &&
         selectedOrder.payed ? (
         <View style={styles.selectDeliveryPersonView}>
-          <View style={styles.pickerView}>
+          <View style={styles.pickerView}> 
             <Text>Choisir un livreur:</Text>
             <Picker
               style={styles.picker}
@@ -234,7 +273,10 @@ const OrderDetailsScreen = ({ route, navigation }) => {
           <View style={styles.touchableView}>
             <TouchableOpacity
               style={styles.acceptTouchable}
-              onPress={() => handlePassOrderToDelivery(selectedDeliveryPersonId, item._id)}
+              onPress={() => {
+                passOrderToDelivery(selectedDeliveryPersonId, item._id)
+                fetchData()
+              }}
             >
               <Text style={styles.touchableText}>Confirmer</Text>
             </TouchableOpacity>
@@ -262,13 +304,19 @@ const OrderDetailsScreen = ({ route, navigation }) => {
           <View style={styles.touchableView}>
             <TouchableOpacity
               style={styles.acceptTouchable}
-              onPress={() => handleRefuseOrAcceptDeliveryOrder('accepted')}
+              onPress={() => {
+                acceptOrRefuseDeliveryOrder(item._id, 'accepted', deliveryComment)
+                fetchData()
+              }}
             >
               <Text style={styles.touchableText}>Accepter</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.refuseTouchable}
-              onPress={() => handleRefuseOrAcceptDeliveryOrder('refused')}
+              onPress={() => {
+                acceptOrRefuseDeliveryOrder(item._id, 'refused', deliveryComment)
+                fetchData()
+              }}
             >
               <Text style={styles.touchableText}>Refuser</Text>
             </TouchableOpacity>
@@ -287,7 +335,10 @@ const OrderDetailsScreen = ({ route, navigation }) => {
         <View style={styles.touchableView}>
           <TouchableOpacity
             style={styles.acceptTouchable}
-            onPress={() => handleFinalizeOrder(selectedOrder._id)}
+            onPress={() => {
+              finalizeOrder(selectedOrder._id)
+              fetchData()
+            }}
           >
             <Text style={styles.touchableText}>Finaliser commande</Text>
           </TouchableOpacity>

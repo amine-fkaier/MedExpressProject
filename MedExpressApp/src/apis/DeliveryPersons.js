@@ -18,6 +18,7 @@ export const DeliveryPersonsProvider = ({ children }) => {
       orderId,
       deliveryComment
     }
+    console.log({body})
     if(response === "accepted"){
       const {data} = await client.post(`/deliveryPersons/acceptDeliveryOrder`, body);
       if(data.success === true){

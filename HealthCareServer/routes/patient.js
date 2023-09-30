@@ -10,9 +10,12 @@ const { getNearestPharmacies, addOrder, getMyOrders, getOrderDetails, payOrder }
 // Set up multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+      console.log({req})
+      console.log({file})
+      console.log({cb})
       const orderId = req.body.orderId || 'default'; // Replace with actual order ID
       const folderPath = path.join(__dirname, '..', 'assets', 'orders', req.body.folderName);
-  
+      
       if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
       }
@@ -26,10 +29,11 @@ const storage = multer.diskStorage({
   
   const upload = multer({ storage });
 
+
+router.post('/addOrder', upload.array('images'), addOrder);
 router.get('/getNearestPharmacies/:userId', getNearestPharmacies);
 router.get('/getMyOrders/:userId', getMyOrders);
 router.get('/getOrderDetails/:orderId', getOrderDetails);
-router.post('/addOrder', upload.array('images'), addOrder);
 router.post('/payOrder/:orderId', payOrder);
 
 module.exports = router;

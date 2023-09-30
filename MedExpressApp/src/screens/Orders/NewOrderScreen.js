@@ -35,9 +35,17 @@ const NewOrderScreen = ({ navigation }) => {
     if(isFocused){
       const fetchData = async () => {
         try {
-          if(userInfo && userInfo.user.role === "patient"){
-            const repsonse = await getNearestPharmacies(userInfo.user.userId)
-            setNearestPharmacies(repsonse.data || [])
+          if(userInfo && userInfo.user.userId && userInfo.user.role && userInfo.user.role === "patient"){
+            const response = await getNearestPharmacies(userInfo.user.userId)
+            if(response && response.success){
+              setNearestPharmacies(response.data || [])
+              if(response.data && response.data && response.data[0] && response.data[0]._id){
+                setSelectedPharmacy(response.data[0]._id)
+              }
+            } else {
+              console.log("error: getNearestPharmacies")
+            }
+            
           }
         } catch (error) {
           // Handle error if AsyncStorage or getMyOrders fails
@@ -101,17 +109,20 @@ const NewOrderScreen = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    console.log({selectedImages, selectedPharmacy})
-    if(selectedPharmacy){
-      if(selectedImages && selectedImages.length){
-        addOrder(userInfo.user.userId, selectedImages, selectedPharmacy, navigation)
+    if(userInfo && userInfo.user && userInfo.user.userId){
+      if(selectedPharmacy && selectedPharmacy.length){
+        if(selectedImages && selectedImages.length){
+          addOrder(userInfo.user.userId, selectedImages, selectedPharmacy, navigation)
+        } else {
+          ToastAndroid.show("Il faut ajouter un ou plusieurs ordonnaces", ToastAndroid.LONG)
+        }
       } else {
-        ToastAndroid.show("Il faut ajouter un ou plusieurs ordonnaces", ToastAndroid.LONG)
+        ToastAndroid.show("Il faut selectionner une pharmacie", ToastAndroid.LONG)
       }
     } else {
-      ToastAndroid.show("Il faut selectionner une pharmacie", ToastAndroid.LONG)
+      ToastAndroid.show("Vérifier les infos de l'utilisateur", ToastAndroid.LONG)
     }
- 
+
   };
 
   const reset = () => {
