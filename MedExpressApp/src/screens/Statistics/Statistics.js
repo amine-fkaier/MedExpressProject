@@ -14,27 +14,17 @@ const ordersData = [
 ];
 
 const StatisticsScreen = ({navigation}) => {
-  const [labels, setLabels] = useState([]);
-  const [dataSets, setDataSets] = useState([]);
+  const [labels, setLabels] = useState([""]);
+  const [dataSets, setDataSets] = useState([0]);
 
   const {getOrdersPerMonth} = useContext(AuthContext);
   const isFocused = useIsFocused(); // Get the focus state using the hook
   useEffect(() => {
     if (isFocused) {
       const fetchData = async () => {
-          const result = await getOrdersPerMonth();
-          
-          if(result && result.data && result.success){
-            let resultLables = []
-            let resultDataSets = []
-            Object.keys(result.data).map((item, index)=> {
-              resultLables.push(item)
-              resultDataSets.push(result.data[item])
-            })
-            console.log({resultLables,resultDataSets })
-            setLabels(resultLables)
-            setDataSets(resultDataSets)
-          }
+          const {resultLables, resultDataSets} = await getOrdersPerMonth();
+          setDataSets(resultDataSets);
+          setLabels(resultLables);
       }
       fetchData()
     }

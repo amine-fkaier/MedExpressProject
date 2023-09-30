@@ -222,7 +222,16 @@ export const AuthProvider = ({ children }) => {
   
   const getOrdersPerMonth = async() => {
     const {data} = await client.get(`/users/getOrdersPerMonth`);
-    return data;
+    console.log({data})
+    let resultLables = []
+    let resultDataSets = []
+    if(data && data.data && Object.keys(data.data).length){
+      Object.keys(data.data).map((item, index)=> {
+        resultLables.push(item)
+        resultDataSets.push(data.data[item])
+      })
+    }
+    return({resultLables, resultDataSets});
   }
 
 
