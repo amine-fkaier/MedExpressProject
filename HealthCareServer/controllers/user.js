@@ -15,6 +15,7 @@ exports.createUser = async (req, res) => {
     role,
     gpsPostion
   } = req.body;
+  console.log({gpsPostion})
   const isNewUser = await User.isThisEmailInUse(email);
   if (!isNewUser)
     return res.json({

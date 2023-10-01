@@ -21,7 +21,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAJ6_uKkqGpWZ7NgZ6xOH43qRuRKEdO2nI"/>
+            android:value="AIzaSyDKK6iiB658v7Kgt8boawO9-UNhtuGnhok"/>
                    <!-- Change the value to true to enable pop-up for in foreground on receiving remote notifications (for prevent duplicating while showing local notifications set this to false) -->
  
         <activity

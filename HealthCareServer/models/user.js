@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     assuranceNum: String,
     creationDate: Date,
     gpsPostion: {
-      lattitude: Number,
+      latitude: Number,
       longitude: Number
     },
     distance: Number,

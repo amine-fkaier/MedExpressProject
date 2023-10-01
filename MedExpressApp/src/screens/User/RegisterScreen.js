@@ -31,8 +31,10 @@ const RegisterScreen = ({navigation}) => {
   const [confirmpassword, setConfirmPassword] = useState(null);
   const [roles, setRoles] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
-  const [longitude, setLongitude] = useState("0");
-  const [lattitude, setLattitude] = useState("0");
+  const [longitude, setLongitude] = useState("37.78825");
+  const [latitude, setLatitude] = useState("-122.4324");
+  const [selectedLocation, setSelectedLocation] = useState(null)
+
   const {isLoading, register, error, getAllRoles, geocodeAddress} = useContext(AuthContext);
   const [selectedCoordinates, setSelectedCoordinates] = useState({
     latitude: 37.78825,
@@ -40,9 +42,21 @@ const RegisterScreen = ({navigation}) => {
   });
   const [address, setAdress] = useState("");
 
-  const handleCoordinateChange = (coordinate) => {
-    setSelectedCoordinates(coordinate);
+  const handleCoordinateChange = (event) => {
+    const { coordinate } = event.nativeEvent;
+    setLatitude(coordinate.latitude.toString())
+    setLongitude(coordinate.longitude.toString())
+    setSelectedLocation(coordinate);
   };
+
+  const resetCoordinate = () => {
+    setSelectedLocation({              
+      latitude: 37.78825, // Initial map center latitude
+      longitude: -122.4324, // Initial map center longitude});
+    })
+    setLatitude("37.78825")
+    setLongitude("-122.4324")
+  }
 
     const webRef = useRef(null);
   const [placeName, setPlaceName] = useState('');
@@ -64,13 +78,18 @@ const RegisterScreen = ({navigation}) => {
       const response = await geocodeAddress(text)
       if(response && response.latitude && response.longitude && !isNaN(response.latitude) && !isNaN(response.longitude)){
         console.log({response})
-        setLattitude(response.latitude)
-        setLongitude(response.longitude)
+        // setLatitude(response.latitude)
+        // setLongitude(response.longitude)
+        setSelectedCoordinates({
+          longitude: response.longitude,
+          latitude: response.latitude
+        })
       } else {
         console.log("check your address")
       }
     }
   }
+  
   
   const isFocused = useIsFocused(); // Get the focus state using the hook
 
@@ -85,6 +104,7 @@ const RegisterScreen = ({navigation}) => {
       };
       fetchData();
     } else {
+      resetCoordinate()
       setUsername(null); 
       setFirstName(null); 
       setLastName(null); 
@@ -93,8 +113,6 @@ const RegisterScreen = ({navigation}) => {
       setConfirmPassword(null);
       setRoles(null);
       setSelectedRole(null);
-      setLongitude("0");
-      setLattitude("0");
     }
 
     const disableBackButton = () => {
@@ -185,9 +203,9 @@ const RegisterScreen = ({navigation}) => {
 
         <TextInput
           style={styles.input}
-          value={lattitude}
-          placeholder="Lattitude"
-          onChangeText={text => setLattitude(text)}
+          value={latitude}
+          placeholder="Latitude"
+          onChangeText={text => setLatitude(text)}
           keyboardType='numeric'
         />
         
@@ -199,53 +217,45 @@ const RegisterScreen = ({navigation}) => {
           keyboardType='numeric'
         /> 
 
-        <TextInput
+        {/* <TextInput
           style={styles.input}
           value={address}
           placeholder="Entrer ton addresse"
           onChangeText={text => updateAdress(text)}
-        /> 
+        />  */}
 
 
          <View style={styles.mapContainer}>
-          {/* <MapView
+          <MapView
             style={styles.map}
+            onPress={handleCoordinateChange}
             initialRegion={{
-              latitude: 48.856614,
-              longitude: 2.3522219,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
+              latitude: 37.78825, // Initial map center latitude
+              longitude: -122.4324, // Initial map center longitude
+              latitudeDelta: 0.0922, // Zoom level (adjust as needed)
+              longitudeDelta: 0.0421, // Zoom level (adjust as needed)
             }}
-            // customMapStyle={mapStyle}
-            >
-            <Marker
-              draggable
-              coordinate={{
-                latitude: 48.856614,
-                longitude: 2.3522219,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}
-              onDragEnd={
-                (e) => alert(JSON.stringify(e.nativeEvent.coordinate))
-              }
-              title={'Test Marker'}
-              description={'This is a description of the marker'}
-            />
-          </MapView> */}
-          <WebView
+          >
+            {selectedLocation && (
+              <Marker
+                coordinate={selectedLocation}
+                title="Selected Location"
+              />
+            )}
+          </MapView>
+          {/* <WebView
             ref={webRef}
             style={styles.map}
             originWhitelist={['*']}
             source={{ html: mapTemplate }}
-          /> 
+          />  */}
         </View>
 
         <View style={{}}>
           <Button
             title="Register"
             onPress={() => {
-              register(username, firstName, lastName, email, password, confirmpassword, selectedRole, gpsPostion={lattitude, longitude}, navigation);
+              register(username, firstName, lastName, email, password, confirmpassword, selectedRole, gpsPostion={latitude, longitude}, navigation);
             }}
           />
 
