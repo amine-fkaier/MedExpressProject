@@ -104,11 +104,11 @@ async function getNearestDeliveryPersons(req, res) {
       const deliveryPersonRole = await Role.findOne({name: 'deliveryPerson'})
       const deliveryPersons = users.filter(user => user.role.equals(deliveryPersonRole._id) && user.status === "accepted");
       const longPharmacy = gpsPosition.longitude;
-      const latPharmacy = gpsPosition.lattitude;
+      const latPharmacy = gpsPosition.latitude;
 
       deliveryPersons.map((deliveryPerson) => {
         const longPH = deliveryPerson.gpsPostion.longitude;
-        const latPH = deliveryPerson.gpsPostion.lattitude;
+        const latPH = deliveryPerson.gpsPostion.latitude;
         const dist = distance(latPH, longPH, latPharmacy, longPharmacy)
         if(dist <= 100){
           deliveryPerson['distance'] = dist;
