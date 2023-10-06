@@ -15,8 +15,10 @@ const StatisticsScreen = ({navigation}) => {
     if (isFocused) {
       const fetchData = async () => {
           const {resultLables, resultDataSets} = await getOrdersPerMonth();
-          setDataSets(resultDataSets);
-          setLabels(resultLables);
+          if(resultDataSets && resultLables && resultDataSets.length && resultLables.length) {
+            setDataSets(resultDataSets);
+            setLabels(resultLables);
+          }
       }
       fetchData()
     }
