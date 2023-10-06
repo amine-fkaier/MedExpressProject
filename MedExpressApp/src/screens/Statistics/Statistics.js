@@ -5,14 +5,6 @@ import { AuthContext } from '../../apis/Users';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { useIsFocused } from '@react-navigation/native';
 
-// Dummy data for orders per month (replace with your actual data)
-const ordersData = [
-  { month: 'January', orders: 50 },
-  { month: 'February', orders: 75 },
-  { month: 'March', orders: 60 },
-  // Add more months and order data as needed
-];
-
 const StatisticsScreen = ({navigation}) => {
   const [labels, setLabels] = useState([""]);
   const [dataSets, setDataSets] = useState([0]);
@@ -44,13 +36,6 @@ const StatisticsScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Commandes/Mois</Text>
-
-      {/* <FlatList
-        data={monthlyOrders}
-        renderItem={renderOrderItem}
-        keyExtractor={(item) => item.month}
-      /> */}
-
       <View style={styles.pieChartContainer}>
         <LineChart
           data={{
