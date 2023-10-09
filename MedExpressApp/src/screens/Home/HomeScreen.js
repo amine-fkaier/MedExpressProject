@@ -9,7 +9,7 @@ import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import { greenColor, redColor, standardColor } from '../../config/config.js';
+import { greenColor, redColor, standardColor,BlueColor } from '../../config/config.js';
 
 
 const HomeScreen = ({navigation}) => {

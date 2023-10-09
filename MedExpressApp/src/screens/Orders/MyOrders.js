@@ -13,7 +13,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { PharmaciesProvider, PharmacyContext } from '../../apis/Pharmacies';
 import { AuthContext } from '../../apis/Users';
 import { DeliveryPersonContext } from '../../apis/DeliveryPersons'; 
-import { greenColor, redColor, standardColor } from '../../config/config';
+import { BlueColor, greenColor, redColor, standardColor } from '../../config/config';
 
 const MyOrders = ({navigation}) => {
   const {userInfo} = useContext(AuthContext);
@@ -69,7 +69,7 @@ const MyOrders = ({navigation}) => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={[styles.touchable, 
-      {backgroundColor: item.orderStatus === "pending" || item.deliveryStatus === "pending"? redColor : greenColor}]} 
+      {backgroundColor: item.orderStatus === "pending" || item.deliveryStatus === "pending"? BlueColor : redColor}]} 
       onPress={() => handleDetailsPress(item)}>
       <View style={styles.detailsContainer}>
         <Text style={styles.orderId}>Commande #{item._id}</Text>
