@@ -154,7 +154,8 @@ const HomeScreen = ({navigation}) => {
       };
     
       const renderUserItem = ({ item }) => (
-        <TouchableOpacity style={[styles.touchable, {backgroundColor: item.status === "accepted"?  greenColor : redColor}]} 
+        <TouchableOpacity style={[styles.touchable, {backgroundColor: item.status === "accepted"?  greenColor : 
+        item.status === "pending"? BlueColor : redColor}]} 
                           onPress={() => handleDetailsPress(item)}>
           <View style={styles.detailsContainer}>
           <Text style={styles.orderId}>Username: {item.username}</Text>

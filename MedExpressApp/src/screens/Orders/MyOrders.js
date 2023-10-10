@@ -69,7 +69,8 @@ const MyOrders = ({navigation}) => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={[styles.touchable, 
-      {backgroundColor: item.orderStatus === "pending" || item.deliveryStatus === "pending"? BlueColor : redColor}]} 
+      {backgroundColor: item.orderStatus === "pending" || item.deliveryStatus === "pending"? BlueColor :
+      item.orderStatus === "refused" || item.deliveryStatus === "refused" ? redColor : greenColor }]} 
       onPress={() => handleDetailsPress(item)}>
       <View style={styles.detailsContainer}>
         <Text style={styles.orderId}>Commande #{item._id}</Text>
